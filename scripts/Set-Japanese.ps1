@@ -1,13 +1,23 @@
-# 日本語言語パックの追加
-Add-WindowsCapability -Online -Name Language.Basic~~~ja-JP~0.0.1.0
+# 日本語のLanguageパックをインストール
+Install-Language ja-JP
 
-# 表示言語とユーザー言語設定
-Set-WinSystemLocale ja-JP
-Set-WinUserLanguageList ja-JP -Force
-Set-Culture ja-JP
-Set-WinUILanguageOverride -Language ja-JP
+# 優先する言語設定を日本語最優先を変更
+Set-WinUserLanguageList -LanguageList ja-JP,en-US -Force
+
+# システムUI表示言語を日本語に変更
+Set-SystemPreferredUILanguage ja-JP
+
+# 地域を日本に変更
 Set-WinHomeLocation -GeoId 122
-Set-TimeZone -Id "Tokyo Standard Time"
 
-# 再起動で反映
+# タイムゾーンを日本時間に変更
+Set-TimeZone -id “Tokyo Standard Time"
+
+# システムロケール設定を日本に変更
+Set-WinSystemLocale ja-JP
+
+# ようこそ画面と新しいユーザーアカウント設定をコピー
+Copy-UserInternationalSettingsToSystem -WelcomeScreen $True -NewUser $True
+
+# Windows OSを再起動
 Restart-Computer
