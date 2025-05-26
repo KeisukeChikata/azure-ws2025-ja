@@ -23,7 +23,7 @@
           "imageReference": {
             "publisher": "MicrosoftWindowsServer",
             "offer": "WindowsServer",
-            "sku": "azure-ws2025-ja",  // 仮の SKU。実際の SKU に要調整。
+            "sku": "azure-ws2025-ja",
             "version": "latest"
           },
           "osDisk": {
@@ -48,6 +48,7 @@
         "[concat('Microsoft.Compute/virtualMachines/', parameters('vmName'))]"
       ],
       "properties": {
+        "protectedSettings": {},
         "publisher": "Microsoft.Compute",
         "type": "CustomScriptExtension",
         "typeHandlerVersion": "1.10",
