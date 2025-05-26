@@ -159,7 +159,7 @@
           "fileUris": [
             "https://raw.githubusercontent.com/KeisukeChikata/azure-ws2025-ja/refs/heads/main/scripts/Set-Japanese.ps1"
           ],
-          "commandToExecute": "powershell -ExecutionPolicy Unrestricted -File setup.ps1"
+          "commandToExecute": "powershell -ExecutionPolicy Unrestricted -File Set-Japanese.ps1"
         }
       }
     }
