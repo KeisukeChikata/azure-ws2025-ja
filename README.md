@@ -9,3 +9,4 @@ New-AzResourceGroupDeployment `
   -adminUsername vmadmin `
   -adminPassword (ConvertTo-SecureString "Dis@1234567890" -AsPlainText -Force)
 ```
+リソースはすぐにできるが、日本語化まで1hほどかかる。(日本語パックのダウンロードに時間がかかっている？)
