@@ -3,6 +3,8 @@ Deploy Windows Server 2025 and set Japanese locale via ARM template.
 
 # Command
 ```
+New-AzResourceGroup -Name win2025-rg -Location japaneast
+
 New-AzResourceGroupDeployment `
   -ResourceGroupName win2025-rg `
   -TemplateUri "https://raw.githubusercontent.com/KeisukeChikata/azure-ws2025-ja/refs/heads/main/azuredeploy.json" `
