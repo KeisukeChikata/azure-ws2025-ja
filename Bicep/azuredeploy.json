@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.35.1.17967",
-      "templateHash": "15898962727789199514"
+      "templateHash": "9639887618784677704"
     }
   },
   "parameters": {
@@ -21,8 +21,11 @@
     },
     "location": {
       "type": "string",
-      "defaultValue": "japaneast"
+      "defaultValue": "[resourceGroup().location]"
     }
+  },
+  "variables": {
+    "dnsLabel": "[toLower(format('{0}-{1}', parameters('vmName'), uniqueString(resourceGroup().id)))]"
   },
   "resources": [
     {
@@ -33,7 +36,7 @@
       "properties": {
         "publicIPAllocationMethod": "Dynamic",
         "dnsSettings": {
-          "domainNameLabel": "[toLower(parameters('vmName'))]"
+          "domainNameLabel": "[variables('dnsLabel')]"
         }
       }
     },
@@ -92,7 +95,7 @@
             "name": "ipconfig1",
             "properties": {
               "subnet": {
-                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', format('{0}VNET', parameters('vmName')), 'default')]"
+                "id": "[reference(resourceId('Microsoft.Network/virtualNetworks', format('{0}VNET', parameters('vmName'))), '2020-06-01').subnets[0].id]"
               },
               "privateIPAllocationMethod": "Dynamic",
               "publicIPAddress": {
@@ -163,7 +166,7 @@
         "autoUpgradeMinorVersion": true,
         "settings": {
           "fileUris": [
-            "https://raw.githubusercontent.com/KeisukeChikata/azure-ws2025-ja/refs/heads/main/scripts/Set-Japanese.ps1"
+            "https://raw.githubusercontent.com/KeisukeChikata/azure-ws2025-ja/main/scripts/Set-Japanese.ps1"
           ],
           "commandToExecute": "powershell -ExecutionPolicy Unrestricted -File Set-Japanese.ps1"
         },
