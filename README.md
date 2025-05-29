@@ -26,14 +26,5 @@ az deployment group create `
 ```
 
 # Command(Azure CLI / Bicep版)
-```
-az group create `
-  --name win2025-rg `
-  --location japaneast
-
-az deployment group create \
-  --resource-group <your-resource-group-name> \
-  --template-file ./main.bicep \
-  --parameters adminUsername=vmadmin adminPassword='Dis@1234567890'
-```
+今後追加予定
 
