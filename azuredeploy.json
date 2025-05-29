@@ -1,170 +1,138 @@
-{
-  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-  "contentVersion": "1.0.0.0",
-  "parameters": {
-    "vmName": {
-      "type": "string",
-      "defaultValue": "win2025-ja"
-    },
-    "adminUsername": {
-      "type": "string"
-    },
-    "adminPassword": {
-      "type": "securestring"
-    },
-    "location": {
-      "type": "string",
-      "defaultValue": "japaneast"
+param vmName string = 'win2025-ja'
+param location string = resourceGroup().location
+param adminUsername string
+@secure()
+param adminPassword string
+
+var dnsLabel = '${toLower(vmName)}-${uniqueString(resourceGroup().id)}'
+
+resource publicIP 'Microsoft.Network/publicIPAddresses@2020-06-01' = {
+  name: '${vmName}PublicIP'
+  location: location
+  properties: {
+    publicIPAllocationMethod: 'Dynamic'
+    dnsSettings: {
+      domainNameLabel: dnsLabel
     }
-  },
-  "resources": [
-    {
-      "type": "Microsoft.Network/publicIPAddresses",
-      "apiVersion": "2020-06-01",
-      "name": "[concat(parameters('vmName'), 'PublicIP')]",
-      "location": "[parameters('location')]",
-      "properties": {
-        "publicIPAllocationMethod": "Dynamic",
-        "dnsSettings": {
-          "domainNameLabel": "[toLower(parameters('vmName'))]"
-        }
-      }
-    },
-    {
-      "type": "Microsoft.Network/virtualNetworks",
-      "apiVersion": "2020-06-01",
-      "name": "[concat(parameters('vmName'), 'VNET')]",
-      "location": "[parameters('location')]",
-      "properties": {
-        "addressSpace": {
-          "addressPrefixes": [
-            "10.0.0.0/16"
-          ]
-        },
-        "subnets": [
-          {
-            "name": "default",
-            "properties": {
-              "addressPrefix": "10.0.0.0/24"
-            }
-          }
-        ]
-      }
-    },
-    {
-      "type": "Microsoft.Network/networkSecurityGroups",
-      "apiVersion": "2020-06-01",
-      "name": "[concat(parameters('vmName'), 'NSG')]",
-      "location": "[parameters('location')]",
-      "properties": {
-        "securityRules": [
-          {
-            "name": "Allow-RDP",
-            "properties": {
-              "priority": 1000,
-              "access": "Allow",
-              "direction": "Inbound",
-              "protocol": "Tcp",
-              "sourcePortRange": "*",
-              "destinationPortRange": "3389",
-              "sourceAddressPrefix": "*",
-              "destinationAddressPrefix": "*"
-            }
-          }
-        ]
-      }
-    },
-    {
-      "type": "Microsoft.Network/networkInterfaces",
-      "apiVersion": "2020-06-01",
-      "name": "[concat(parameters('vmName'), 'NIC')]",
-      "location": "[parameters('location')]",
-      "dependsOn": [
-        "[resourceId('Microsoft.Network/virtualNetworks', concat(parameters('vmName'), 'VNET'))]",
-        "[resourceId('Microsoft.Network/publicIPAddresses', concat(parameters('vmName'), 'PublicIP'))]",
-        "[resourceId('Microsoft.Network/networkSecurityGroups', concat(parameters('vmName'), 'NSG'))]"
-      ],
-      "properties": {
-        "ipConfigurations": [
-          {
-            "name": "ipconfig1",
-            "properties": {
-              "subnet": {
-                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', concat(parameters('vmName'), 'VNET'), 'default')]"
-              },
-              "privateIPAllocationMethod": "Dynamic",
-              "publicIPAddress": {
-                "id": "[resourceId('Microsoft.Network/publicIPAddresses', concat(parameters('vmName'), 'PublicIP'))]"
-              }
-            }
-          }
-        ],
-        "networkSecurityGroup": {
-          "id": "[resourceId('Microsoft.Network/networkSecurityGroups', concat(parameters('vmName'), 'NSG'))]"
-        }
-      }
-    },
-    {
-      "type": "Microsoft.Compute/virtualMachines",
-      "apiVersion": "2022-11-01",
-      "name": "[parameters('vmName')]",
-      "location": "[parameters('location')]",
-      "dependsOn": [
-        "[resourceId('Microsoft.Network/networkInterfaces', concat(parameters('vmName'), 'NIC'))]"
-      ],
-      "properties": {
-        "hardwareProfile": {
-          "vmSize": "Standard_B2ms"
-        },
-        "osProfile": {
-          "computerName": "[parameters('vmName')]",
-          "adminUsername": "[parameters('adminUsername')]",
-          "adminPassword": "[parameters('adminPassword')]"
-        },
-        "storageProfile": {
-          "imageReference": {
-            "publisher": "MicrosoftWindowsServer",
-            "offer": "WindowsServer",
-            "sku": "2025-datacenter-azure-edition",
-            "version": "latest"
-          },
-          "osDisk": {
-            "createOption": "FromImage",
-            "managedDisk": {
-              "storageAccountType": "StandardSSD_LRS"
-            }
-          }
-        },
-        "networkProfile": {
-          "networkInterfaces": [
-            {
-              "id": "[resourceId('Microsoft.Network/networkInterfaces', concat(parameters('vmName'), 'NIC'))]"
-            }
-          ]
-        }
-      }
-    },
-    {
-      "type": "Microsoft.Compute/virtualMachines/extensions",
-      "apiVersion": "2022-11-01",
-      "name": "[concat(parameters('vmName'), '/JapaneseExtension')]",
-      "location": "[parameters('location')]",
-      "dependsOn": [
-        "[resourceId('Microsoft.Compute/virtualMachines', parameters('vmName'))]"
-      ],
-      "properties": {
-        "protectedSettings": {},
-        "publisher": "Microsoft.Compute",
-        "type": "CustomScriptExtension",
-        "typeHandlerVersion": "1.10",
-        "autoUpgradeMinorVersion": true,
-        "settings": {
-          "fileUris": [
-            "https://raw.githubusercontent.com/KeisukeChikata/azure-ws2025-ja/refs/heads/main/scripts/Set-Japanese.ps1"
-          ],
-          "commandToExecute": "powershell -ExecutionPolicy Unrestricted -File Set-Japanese.ps1"
-        }
-      }
-    }
-  ]
+  }
 }
+
+resource vnet 'Microsoft.Network/virtualNetworks@2020-06-01' = {
+  name: '${vmName}VNET'
+  location: location
+  properties: {
+    addressSpace: {
+      addressPrefixes: ['10.0.0.0/16']
+    }
+    subnets: [
+      {
+        name: 'default'
+        properties: {
+          addressPrefix: '10.0.0.0/24'
+        }
+      }
+    ]
+  }
+}
+
+resource nsg 'Microsoft.Network/networkSecurityGroups@2020-06-01' = {
+  name: '${vmName}NSG'
+  location: location
+  properties: {
+    securityRules: [
+      {
+        name: 'Allow-RDP'
+        properties: {
+          priority: 1000
+          access: 'Allow'
+          direction: 'Inbound'
+          protocol: 'Tcp'
+          sourcePortRange: '*'
+          destinationPortRange: '3389'
+          sourceAddressPrefix: '*'
+          destinationAddressPrefix: '*'
+        }
+      }
+    ]
+  }
+}
+
+resource nic 'Microsoft.Network/networkInterfaces@2020-06-01' = {
+  name: '${vmName}NIC'
+  location: location
+  properties: {
+    ipConfigurations: [
+      {
+        name: 'ipconfig1'
+        properties: {
+          subnet: {
+            id: vnet.properties.subnets[0].id
+          }
+          privateIPAllocationMethod: 'Dynamic'
+          publicIPAddress: {
+            id: publicIP.id
+          }
+        }
+      }
+    ]
+    networkSecurityGroup: {
+      id: nsg.id
+    }
+  }
+}
+
+resource vm 'Microsoft.Compute/virtualMachines@2022-11-01' = {
+  name: vmName
+  location: location
+  properties: {
+    hardwareProfile: {
+      vmSize: 'Standard_B2ms'
+    }
+    osProfile: {
+      computerName: vmName
+      adminUsername: adminUsername
+      adminPassword: adminPassword
+    }
+    storageProfile: {
+      imageReference: {
+        publisher: 'MicrosoftWindowsServer'
+        offer: 'WindowsServer'
+        sku: '2025-datacenter-azure-edition'
+        version: 'latest'
+      }
+      osDisk: {
+        createOption: 'FromImage'
+        managedDisk: {
+          storageAccountType: 'StandardSSD_LRS'
+        }
+      }
+    }
+    networkProfile: {
+      networkInterfaces: [
+        {
+          id: nic.id
+        }
+      ]
+    }
+  }
+}
+
+resource extension 'Microsoft.Compute/virtualMachines/extensions@2022-11-01' = {
+  name: '${vm.name}/JapaneseExtension'
+  location: location
+  properties: {
+    publisher: 'Microsoft.Compute'
+    type: 'CustomScriptExtension'
+    typeHandlerVersion: '1.10'
+    autoUpgradeMinorVersion: true
+    settings: {
+      fileUris: [
+        'https://raw.githubusercontent.com/KeisukeChikata/azure-ws2025-ja/refs/heads/main/scripts/Set-Japanese.ps1'
+      ]
+      commandToExecute: 'powershell -ExecutionPolicy Unrestricted -File Set-Japanese.ps1'
+    }
+    protectedSettings: {}
+  }
+}
+
+output publicFqdn string = publicIP.properties.dnsSettings.fqdn
