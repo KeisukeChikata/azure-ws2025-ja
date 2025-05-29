@@ -165,27 +165,6 @@
           "commandToExecute": "powershell -ExecutionPolicy Unrestricted -File Set-Japanese.ps1"
         }
       }
-    },
-    {
-      "type": "Microsoft.DevTestLab/schedules",
-      "apiVersion": "2018-09-15",
-      "name": "[concat(parameters('vmName'), '/shutdown-computevm')]",
-      "location": "[parameters('location')]",
-      "dependsOn": [
-        "[resourceId('Microsoft.Compute/virtualMachines', parameters('vmName'))]"
-      ],
-      "properties": {
-        "status": "Enabled",
-        "taskType": "ComputeVmShutdownTask",
-        "dailyRecurrence": {
-          "time": "10:00"
-        },
-        "timeZoneId": "Tokyo Standard Time",
-        "targetResourceId": "[resourceId('Microsoft.Compute/virtualMachines', parameters('vmName'))]",
-        "notificationSettings": {
-          "status": "Disabled"
-        }
-      }
     }
   ]
 }
