@@ -129,7 +129,10 @@
             "version": "latest"
           },
           "osDisk": {
-            "createOption": "FromImage"
+            "createOption": "FromImage",
+            "managedDisk": {
+              "storageAccountType": "StandardSSD_LRS"
+            }
           }
         },
         "networkProfile": {
@@ -150,7 +153,7 @@
         "[resourceId('Microsoft.Compute/virtualMachines', parameters('vmName'))]"
       ],
       "properties": {
-        "protectedSettings":{},
+        "protectedSettings": {},
         "publisher": "Microsoft.Compute",
         "type": "CustomScriptExtension",
         "typeHandlerVersion": "1.10",
@@ -160,6 +163,27 @@
             "https://raw.githubusercontent.com/KeisukeChikata/azure-ws2025-ja/refs/heads/main/scripts/Set-Japanese.ps1"
           ],
           "commandToExecute": "powershell -ExecutionPolicy Unrestricted -File Set-Japanese.ps1"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.DevTestLab/schedules",
+      "apiVersion": "2018-09-15",
+      "name": "[concat(parameters('vmName'), '/shutdown-computevm')]",
+      "location": "[parameters('location')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Compute/virtualMachines', parameters('vmName'))]"
+      ],
+      "properties": {
+        "status": "Enabled",
+        "taskType": "ComputeVmShutdownTask",
+        "dailyRecurrence": {
+          "time": "10:00"
+        },
+        "timeZoneId": "Tokyo Standard Time",
+        "targetResourceId": "[resourceId('Microsoft.Compute/virtualMachines', parameters('vmName'))]",
+        "notificationSettings": {
+          "status": "Disabled"
         }
       }
     }
