@@ -3,10 +3,10 @@ Deploy Windows Server 2025 and set Japanese locale via ARM template.
 
 # Command(cloud shell / ARMテンプレート版)
 ```
-New-AzResourceGroup -Name win2025-rg -Location japaneast
+New-AzResourceGroup -Name <resource_group_name> -Location japaneast
 
 New-AzResourceGroupDeployment `
-  -ResourceGroupName win2025-rg `
+  -ResourceGroupName <resource_group_name> `
   -TemplateUri "https://raw.githubusercontent.com/KeisukeChikata/azure-ws2025-ja/refs/heads/main/azuredeploy.json" `
   -adminUsername vmadmin `
   -adminPassword (ConvertTo-SecureString "Dis@1234567890" -AsPlainText -Force)
@@ -16,15 +16,20 @@ New-AzResourceGroupDeployment `
 # Command(Azure CLI / ARMテンプレート版)
 ```
 az group create `
-  --name win2025-rg `
+  --name <resource_group_name> `
   --location japaneast
 
 az deployment group create `
-  --resource-group win2025-rg `
+  --resource-group <resource_group_name> `
   --template-uri "https://raw.githubusercontent.com/KeisukeChikata/azure-ws2025-ja/refs/heads/main/azuredeploy.json" `
   --parameters adminUsername=vmadmin adminPassword='Dis@1234567890'
 ```
 
 # Command(Azure CLI / Bicep版)
-今後追加予定
+```
+az deployment group create \
+  --resource-group <resource_group_name> \
+  --template-uri "https://raw.githubusercontent.com/KeisukeChikata/azure-ws2025-ja/refs/heads/main/azuredeploy.json" \
+  --parameters adminUsername=vmadmin adminPassword='Dis@1234567890'
+```
 
