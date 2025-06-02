@@ -29,7 +29,7 @@ az deployment group create `
 ```
 az deployment group create `
   --resource-group <resource_group_name> `
-  --template-uri "https://raw.githubusercontent.com/KeisukeChikata/azure-ws2025-ja/refs/heads/main/azuredeploy.json" `
+  --template-uri "https://raw.githubusercontent.com/KeisukeChikata/azure-ws2025-ja/refs/heads/main/Bicep/azuredeploy.json" `
   --parameters adminUsername=vmadmin adminPassword='Dis@1234567890'
 ```
 
